@@ -2,7 +2,6 @@ import axios from 'axios'
 
 export const GET_INIT_GRAPH = 'GET_INIT_GRAPH'
 export const GET_UPDATE_GRAPH = 'GET_UPDATE_GRAPH'
-export const GET_CSV = 'GET_CSV'
 
 export const getInitialGraph = (startDate, endDate, location) => (dispatch) => {
     axios
@@ -24,15 +23,4 @@ export const getUpdatedGraph = (startDate, endDate, graphType, location, frequen
                 payload: res.data,
             })
         })
-}
-
-export const getCSV = () => {
-    return (dispatch) => {
-        axios.get('/api/downloads').then((res) => {
-            dispatch({
-                type: GET_CSV,
-                payload: res.data,
-            })
-        })
-    }
 }
