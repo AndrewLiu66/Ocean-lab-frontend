@@ -1,9 +1,8 @@
 import {
-    GET_INIT_GRAPH, GET_UPDATE_GRAPH, GET_CSV
+    GET_INIT_GRAPH, GET_UPDATE_GRAPH
 } from '../actions/GraphActions'
 
 const initialState = {
-    // graphList: [],
     initGraph: {},
     csv: {}
 }
@@ -22,12 +21,6 @@ const GraphReducer = function (state = initialState, action) {
             return {
                 ...state,
                 initGraph: { ...action.payload }
-            }
-        }
-        case GET_CSV: {
-            return {
-                ...state,
-                csv: { ...action.payload }
             }
         }
         default: {
