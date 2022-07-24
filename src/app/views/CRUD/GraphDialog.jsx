@@ -135,10 +135,6 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
     }
 
     useEffect(() => {
-        console.log('child')
-    })
-    useEffect(() => {
-        console.log('chil1')
         setLoading(true)
         fetchData()
     }, [])
@@ -200,12 +196,16 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
             }
         }
 
-        if (dateStrings[1] === '' || dateStrings[0] !== startDate) {
+        if (
+            dateStrings[1] === '' ||
+            (dateStrings[0] !== startDate && dateStrings[1] === endDate)
+        ) {
             const futureMonth = moment(dateStrings[0]).add(1, 'M')
             const next = moment(futureMonth._d)
             setStartDate(dateStrings[0])
             setEndDate(next.format('YYYY-MM-DD HH:mm'))
         } else {
+            setStartDate(dateStrings[0])
             setEndDate(dateStrings[1])
         }
     }
@@ -236,7 +236,6 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                 frequency,
             })
             .then((res) => {
-                console.log(res.data.data)
                 const csvExporter = new ExportToCsv(options)
                 csvExporter.generateCsv(res.data.data)
             })
@@ -309,6 +308,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                                 format={'YYYY-MM-DD HH:mm'}
                                 onCalendarChange={handleCalendarChange}
                                 disabledDate={disabledDate}
+                                allowClear={false}
                             />
                             {error !== '' && (
                                 <Box
