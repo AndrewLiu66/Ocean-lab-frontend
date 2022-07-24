@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Button,
     IconButton,
@@ -124,7 +124,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
     const [frequency, setFrequency] = useState(50)
     const [error, setError] = useState('')
 
-    const fetchData = useCallback(async () => {
+    const fetchData = async () => {
         await dispatch(
             getInitialGraph(
                 startDate,
@@ -132,12 +132,16 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                 currentLocation.replace(' ', '_').toLowerCase()
             )
         )
-    }, [])
+    }
 
     useEffect(() => {
+        console.log('child')
+    })
+    useEffect(() => {
+        console.log('chil1')
         setLoading(true)
         fetchData()
-    }, [fetchData])
+    }, [])
 
     useEffect(() => {
         if (currType === 'Spectrogram' || currType === 'Octave Band') {
@@ -169,7 +173,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
 
     const options = {
         fieldSeparator: ',',
-        filename: `${currType}` + '-' + `${handleOutputName()}`,
+        filename: `${currType}-${handleOutputName()}`,
         quoteStrings: '"',
         decimalSeparator: '.',
         showLabels: true,
@@ -452,5 +456,4 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
         </Backdrop>
     )
 }
-
-export default GraphDialog
+export default React.memo(GraphDialog)
