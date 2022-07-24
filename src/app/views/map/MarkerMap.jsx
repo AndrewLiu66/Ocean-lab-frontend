@@ -126,7 +126,7 @@ function MarkerMap() {
                         latitude={Number(popupInfo.latitude)}
                         onClose={() => setPopupInfo(null)}
                     >
-                        <Box sx={{ fontSize: '16px', pb: 1 }}>Loction:</Box>
+                        <Box sx={{ fontSize: '16px', pb: 1 }}>Location:</Box>
                         <Box sx={{ fontSize: '14px', pb: 1 }}>
                             {popupInfo.location}
                         </Box>
