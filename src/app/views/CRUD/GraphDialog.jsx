@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
     Button,
     IconButton,
@@ -22,9 +22,9 @@ import Backdrop from '@mui/material/Backdrop'
 import axios from 'axios'
 import DownloadIcon from '@mui/icons-material/Download'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import { ExportToCsv } from 'export-to-csv'
 import { DatePicker } from 'antd'
 import * as moment from 'moment'
+import { CSVLink } from 'react-csv'
 
 const FlexBox = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -104,15 +104,27 @@ const DateBox = styled(Box)(({ theme }) => ({
     flexDirection: 'column',
     position: 'relative',
     [theme.breakpoints.down('md')]: {
-        marginBottom: '5px',
+        marginBottom: '20px',
+    },
+}))
+
+const Notice = styled(Box)(({ theme }) => ({
+    color: '#696665',
+    position: 'absolute',
+    width: '350px',
+    bottom: '-8px',
+    fontSize: '12px',
+    [theme.breakpoints.down('md')]: {
+        bottom: '-8px',
     },
 }))
 
 const { RangePicker } = DatePicker
 
 const GraphDialog = ({ currentLocation, open, handleClose }) => {
-    const [startDate, setStartDate] = useState('2018-03-01 00:00')
-    const [endDate, setEndDate] = useState('2018-03-02 00:00')
+    const [data, setData] = useState([])
+    const [startDate, setStartDate] = useState('2018-03-01 00')
+    const [endDate, setEndDate] = useState('2018-03-02 23')
     const { palette } = useTheme()
     const dispatch = useDispatch()
     const textPrimary = palette.text.primary
@@ -123,6 +135,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
     const [image, setImage] = useState('')
     const [frequency, setFrequency] = useState(50)
     const [error, setError] = useState('')
+    const csvLink = useRef(null)
 
     const fetchData = async () => {
         await dispatch(
@@ -167,18 +180,63 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
         return currentLocation + '-' + startDate + '-' + endDate
     }
 
-    const options = {
-        fieldSeparator: ',',
-        filename: `${currType}-${handleOutputName()}`,
-        quoteStrings: '"',
-        decimalSeparator: '.',
-        showLabels: true,
-        showTitle: false,
-        useTextFile: false,
-        useBom: true,
-        useKeysAsHeaders: true,
+    const handleCsvHeader = () => {
+        switch (currType) {
+            case 'Octave Band':
+                return [
+                    { label: 'date', key: 'date' },
+                    { label: 'min', key: 'min' },
+                    { label: 'firstQuartile', key: 'firstQuartile' },
+                    { label: 'median', key: 'median' },
+                    {
+                        label: 'thirdQuartile',
+                        key: 'thirdQuartile',
+                    },
+                    {
+                        label: 'max',
+                        key: 'max',
+                    },
+                ]
+            case 'SPDF':
+                return [
+                    { label: 'Frequency', key: 'Frequency' },
+                    { label: 'Level 1', key: 'Level 1' },
+                    {
+                        label: 'Level 5',
+                        key: 'Level 5',
+                    },
+                    {
+                        label: 'Level 10',
+                        key: 'Level 10',
+                    },
+                    {
+                        label: 'Level 50',
+                        key: 'Level 50',
+                    },
+                    {
+                        label: 'Level 90',
+                        key: 'Level 90',
+                    },
+                    {
+                        label: 'Level 95',
+                        key: 'Level 95',
+                    },
+                    {
+                        label: 'Level 99',
+                        key: 'Level 99',
+                    },
+                ]
+            default:
+                return [
+                    { label: 'time', key: 'time' },
+                    { label: 'frequency', key: 'frequency' },
+                    {
+                        label: currentLocation,
+                        key: currentLocation.replace(' ', '_').toLowerCase(),
+                    },
+                ]
+        }
     }
-
     const handleChange = (event) => {
         setGraphType(event.target.value)
     }
@@ -186,10 +244,10 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
     const handleFrequencyChange = (event) => {
         setFrequency(event.target.value)
     }
-    const handleCalendarChange = (dates, dateStrings) => {
+    const handleCalendarChange = (dates, dateStrings, info) => {
         if (dateStrings[1] !== '') {
-            const diff = dates[1].diff(dates[0], 'minutes')
-            if (diff < 15) {
+            const diff = dates[1].diff(dates[0], 'months')
+            if (diff >= 1) {
                 setError('error')
             } else {
                 setError('')
@@ -200,10 +258,12 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
             dateStrings[1] === '' ||
             (dateStrings[0] !== startDate && dateStrings[1] === endDate)
         ) {
-            const futureMonth = moment(dateStrings[0]).add(1, 'M')
+            const futureMonth = moment(dateStrings[0])
+                .add(1, 'M')
+                .add(23, 'hours')
             const next = moment(futureMonth._d)
             setStartDate(dateStrings[0])
-            setEndDate(next.format('YYYY-MM-DD HH:mm'))
+            setEndDate(next.format('YYYY-MM-DD HH'))
         } else {
             setStartDate(dateStrings[0])
             setEndDate(dateStrings[1])
@@ -227,6 +287,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
 
     const download = () => {
         const location = currentLocation.replace(' ', '_').toLowerCase()
+        setLoading(true)
         axios
             .post('/api/downloads', {
                 startDate,
@@ -236,8 +297,9 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                 frequency,
             })
             .then((res) => {
-                const csvExporter = new ExportToCsv(options)
-                csvExporter.generateCsv(res.data.data)
+                setLoading(false)
+                setData(res.data.data)
+                csvLink.current.link.click()
             })
     }
 
@@ -259,7 +321,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
             <AnalyticsRoot
                 sx={{
                     width: '60%',
-                    height: '70%',
+                    height: '65%',
                     overflow: 'scroll',
                 }}
             >
@@ -284,7 +346,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                 >
                     <Grid
                         item
-                        lg={5}
+                        lg={4}
                         md={6}
                         sm={12}
                         xs={12}
@@ -292,34 +354,27 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                         alignItems="center"
                         pt={0}
                     >
-                        <DateBox>
+                        <DateBox style={{ width: '100%'  }}>
                             <RangePicker
-                                status={`${error}`}
                                 size="large"
                                 showTime={{
                                     hideDisabledOptions: true,
                                 }}
-                                style={{ width: '100%' }}
                                 defaultValue={[
                                     moment(startDate),
                                     moment(endDate),
                                 ]}
                                 value={[moment(startDate), moment(endDate)]}
-                                format={'YYYY-MM-DD HH:mm'}
+                                format={'YYYY-MM-DD HH'}
                                 onCalendarChange={handleCalendarChange}
                                 disabledDate={disabledDate}
                                 allowClear={false}
                             />
-                            {error !== '' && (
-                                <Box
-                                    sx={{
-                                        color: 'red',
-                                        position: 'absolute',
-                                        bottom: '-5px',
-                                    }}
-                                >
-                                    Time interval should be at least 15 min!
-                                </Box>
+                            {graphType === 'Spectrogram' && (
+                                <Notice>
+                                    Time interval should not exceed 1 month to
+                                    download CSV
+                                </Notice>
                             )}
                         </DateBox>
                     </Grid>
@@ -347,7 +402,6 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                             </Select>
                         </FormControl>
                     </Grid>
-
                     <Grid item lg={3} md={3} sm={6} xs={12}>
                         <TextField
                             error={checkFrequecy()}
@@ -371,7 +425,7 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                     <Grid item lg={6} md={6} sm={12} xs={12}>
                         <ButtonBox>
                             <StyledButton
-                                disabled={checkFrequecy() || error !== ''}
+                                disabled={checkFrequecy()}
                                 variant="contained"
                                 component="span"
                                 onClick={handleUpdateGraph}
@@ -381,14 +435,28 @@ const GraphDialog = ({ currentLocation, open, handleClose }) => {
                             </StyledButton>
 
                             <StyledButton
+                                disabled={
+                                    error === 'error' &&
+                                    graphType === 'Spectrogram'
+                                        ? true
+                                        : false
+                                }
                                 variant="contained"
                                 component="span"
-                                onClick={() => download()}
+                                onClick={download}
                                 sx={{ backgroundColor: '#008255' }}
                             >
                                 <DownloadIcon sx={{ mr: 1 }} />
                                 CSV
                             </StyledButton>
+                            <CSVLink
+                                data={data}
+                                filename={handleOutputName()}
+                                className="hidden"
+                                ref={csvLink}
+                                target="_blank"
+                                headers={handleCsvHeader()}
+                            />
 
                             <StyledButton
                                 disabled={
