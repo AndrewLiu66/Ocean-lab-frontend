@@ -1,5 +1,5 @@
 import { Box } from '@mui/system'
-import React, { useState, useMemo, Fragment } from 'react'
+import React, { useState, useMemo, Fragment, useCallback } from 'react'
 import { Button } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import GraphDialog from 'app/views/CRUD/GraphDialog'
@@ -7,7 +7,6 @@ import Map, { Marker, Popup, Source, Layer } from 'react-map-gl'
 import { GET_INIT_GRAPH } from 'app/redux/actions/GraphActions.js'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
-// import CityPin from './CityPin'
 import PlaceIcon from '@mui/icons-material/Place'
 
 const TOKEN =
@@ -62,10 +61,10 @@ function MarkerMap() {
         })
     }
 
-    const handleOpenDialog = (open, currentLocation) => {
+    const handleOpenDialog = useCallback((open, currentLocation) => {
         setShouldOpenEditorDialog(open)
         setCurrentLocation(currentLocation)
-    }
+    }, [])
 
     const pins = useMemo(
         () =>
@@ -126,7 +125,7 @@ function MarkerMap() {
                         latitude={Number(popupInfo.latitude)}
                         onClose={() => setPopupInfo(null)}
                     >
-                        <Box sx={{ fontSize: '16px', pb: 1 }}>Loction:</Box>
+                        <Box sx={{ fontSize: '16px', pb: 1 }}>Location:</Box>
                         <Box sx={{ fontSize: '14px', pb: 1 }}>
                             {popupInfo.location}
                         </Box>

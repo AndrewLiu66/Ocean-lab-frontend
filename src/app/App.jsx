@@ -5,6 +5,7 @@ import { useRoutes } from 'react-router-dom'
 import { SettingsProvider } from 'app/contexts/SettingsContext'
 import { AllPages } from './routes/routes'
 import { MatxTheme } from './components'
+import 'antd/dist/antd.css'
 
 const App = () => {
     const all_pages = useRoutes(AllPages())
@@ -12,9 +13,7 @@ const App = () => {
     return (
         <Provider store={Store}>
             <SettingsProvider>
-                <MatxTheme>
-                    {all_pages}
-                </MatxTheme>
+                <MatxTheme>{all_pages}</MatxTheme>
             </SettingsProvider>
         </Provider>
     )

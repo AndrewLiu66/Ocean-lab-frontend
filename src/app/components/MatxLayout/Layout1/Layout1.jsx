@@ -6,7 +6,6 @@ import { styled, Box, useTheme } from '@mui/system'
 import { ThemeProvider, useMediaQuery } from '@mui/material'
 import MatxSuspense from 'app/components/MatxSuspense/MatxSuspense'
 
-
 const Layout1Root = styled(Box)(({ theme }) => ({
     display: 'flex',
     background: theme.palette.background.default,
@@ -21,7 +20,7 @@ const ContentBox = styled(Box)(() => ({
     justifyContent: 'space-between',
 }))
 
-const LayoutContainer = styled(Box)(({ width, secondarySidebar }) => ({
+const LayoutContainer = styled(Box)(({ width }) => ({
     height: '100vh',
     display: 'flex',
     flexGrow: '1',
@@ -31,12 +30,11 @@ const LayoutContainer = styled(Box)(({ width, secondarySidebar }) => ({
     position: 'relative',
     overflow: 'hidden',
     transition: 'all 0.3s ease',
-    marginRight: secondarySidebar.open ? 50 : 0,
 }))
 
 const Layout1 = () => {
     const { settings, updateSettings } = useSettings()
-    const { layout1Settings, secondarySidebar } = settings
+    const { layout1Settings } = settings
     const topbarTheme = settings.themes[layout1Settings.topbar.theme]
 
     const theme = useTheme()
@@ -44,12 +42,10 @@ const Layout1 = () => {
     const ref = useRef({ isMdScreen, settings })
     const layoutClasses = `theme-${theme.palette.type}`
 
-
     useEffect(() => {
         let { settings } = ref.current
         let sidebarMode = settings.layout1Settings.leftSidebar.mode
-        if (settings.layout1Settings.leftSidebar.show)
-        {
+        if (settings.layout1Settings.leftSidebar.show) {
             let mode = isMdScreen ? 'close' : sidebarMode
             updateSettings({ layout1Settings: { leftSidebar: { mode } } })
         }
@@ -58,31 +54,18 @@ const Layout1 = () => {
 
     return (
         <Layout1Root className={layoutClasses}>
-            <LayoutContainer
-                secondarySidebar={secondarySidebar}
-            >
-                {layout1Settings.topbar.show && layout1Settings.topbar.fixed && (
-                    <ThemeProvider theme={topbarTheme}>
-                        <Layout1Topbar fixed={true} className="elevation-z8" />
-                    </ThemeProvider>
-                )}
+            <LayoutContainer>
+                <ThemeProvider theme={topbarTheme}>
+                    <Layout1Topbar fixed={true} />
+                </ThemeProvider>
 
-                {!settings.perfectScrollbar && (
-                    <ContentBox>
-                        {layout1Settings.topbar.show &&
-                            !layout1Settings.topbar.fixed && (
-                                <ThemeProvider theme={topbarTheme}>
-                                    <Layout1Topbar />
-                                </ThemeProvider>
-                            )}
-                        <Box flexGrow={1} position="relative">
-                            <MatxSuspense>
-                                <Outlet />
-                            </MatxSuspense>
-                        </Box>
-                    </ContentBox>
-                )}
-
+                <ContentBox>
+                    <Box flexGrow={1} position="relative">
+                        <MatxSuspense>
+                            <Outlet />
+                        </MatxSuspense>
+                    </Box>
+                </ContentBox>
             </LayoutContainer>
         </Layout1Root>
     )
