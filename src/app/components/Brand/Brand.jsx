@@ -18,7 +18,7 @@ const StyledSpan = styled(Span)(() => ({
 const IMG = styled('img')(({ theme }) => ({
     width: '240px',
     marginLeft: '15px',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
         display: 'none'
     },
 }))

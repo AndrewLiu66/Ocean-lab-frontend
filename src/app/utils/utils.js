@@ -2,15 +2,18 @@ import { differenceInSeconds } from 'date-fns'
 
 export const convertHexToRGB = (hex) => {
     // check if it's a rgba
-    if (hex.match('rgba')) {
+    if (hex.match('rgba'))
+    {
         let triplet = hex.slice(5).split(',').slice(0, -1).join(',')
         return triplet
     }
 
     let c
-    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex))
+    {
         c = hex.substring(1).split('')
-        if (c.length === 3) {
+        if (c.length === 3)
+        {
             c = [c[0], c[0], c[1], c[1], c[2], c[2]]
         }
         c = '0x' + c.join('')
@@ -34,21 +37,24 @@ export function debounce(func, wait, immediate) {
 }
 
 export function isMobile() {
-    if (window) {
+    if (window)
+    {
         return window.matchMedia(`(max-width: 767px)`).matches
     }
     return false
 }
 
 export function isMdScreen() {
-    if (window) {
+    if (window)
+    {
         return window.matchMedia(`(max-width: 1199px)`).matches
     }
     return false
 }
 
 function currentYPosition(elm) {
-    if (!window && !elm) {
+    if (!window && !elm)
+    {
         return
     }
     if (elm) return elm.scrollTop
@@ -65,7 +71,8 @@ function currentYPosition(elm) {
 function elmYPosition(elm) {
     var y = elm.offsetTop
     var node = elm
-    while (node.offsetParent && node.offsetParent !== document.body) {
+    while (node.offsetParent && node.offsetParent !== document.body)
+    {
         node = node.offsetParent
         y += node.offsetTop
     }
@@ -75,7 +82,8 @@ function elmYPosition(elm) {
 export function scrollTo(scrollableElement, elmID) {
     var elm = document.getElementById(elmID)
 
-    if (!elmID || !elm) {
+    if (!elmID || !elm)
+    {
         return
     }
 
@@ -83,7 +91,8 @@ export function scrollTo(scrollableElement, elmID) {
     var stopY = elmYPosition(elm)
 
     var distance = stopY > startY ? stopY - startY : startY - stopY
-    if (distance < 100) {
+    if (distance < 100)
+    {
         scrollTo(0, stopY)
         return
     }
@@ -92,8 +101,10 @@ export function scrollTo(scrollableElement, elmID) {
     var step = Math.round(distance / 25)
     var leapY = stopY > startY ? startY + step : startY - step
     var timer = 0
-    if (stopY > startY) {
-        for (var i = startY; i < stopY; i += step) {
+    if (stopY > startY)
+    {
+        for (var i = startY; i < stopY; i += step)
+        {
             setTimeout(
                 (function (leapY) {
                     return () => {
@@ -108,7 +119,8 @@ export function scrollTo(scrollableElement, elmID) {
         }
         return
     }
-    for (let i = startY; i > stopY; i -= step) {
+    for (let i = startY; i > stopY; i -= step)
+    {
         setTimeout(
             (function (leapY) {
                 return () => {
@@ -167,9 +179,21 @@ export const flat = (array) => {
     var result = []
     array.forEach(function (a) {
         result.push(a)
-        if (Array.isArray(a.children)) {
+        if (Array.isArray(a.children))
+        {
             result = result.concat(flat(a.children))
         }
     })
     return result
+}
+
+export const getApiLocation = (location) => {
+    return location.replace(' ', '_').toLowerCase()
+}
+
+
+export const handleOutputName = (location, start, end, selectedValue = "") => {
+    if (selectedValue === "CTD")
+        return location + '-' + 'CTD' + '-' + start + '-' + end
+    return location + '-' + start + '-' + end
 }

@@ -1,11 +1,11 @@
-import { styled, Box, useTheme } from '@mui/system'
+import { styled, Box } from '@mui/system'
 import { themeShadows } from 'app/components/MatxTheme/themeColors'
 import { topBarHeight } from 'app/utils/constant'
 import Brand from '../../Brand/Brand'
 import React, { useState } from 'react'
-import { Drawer, Icon } from '@mui/material'
-import { convertHexToRGB } from 'app/utils/utils'
+import { Drawer } from '@mui/material'
 import { H4, Paragraph } from 'app/components/Typography'
+import { Link } from 'react-router-dom'
 
 const TopbarRoot = styled('div')(() => ({
     top: 0,
@@ -46,12 +46,13 @@ const ChunkBox = styled('div')(() => ({
     marginBottom: '40px',
 }))
 
-const InfoBox = styled(Box)(({ theme }) => ({
+const InfoBox = styled(Box)(() => ({
     display: 'flex',
-    borderRadius: '20px',
-    '&:hover': {
-        backgroundColor: theme.palette.action.hover,
-    },
+}))
+
+const Options = styled(H4)(({ theme }) => ({
+    margin: '15px',
+    cursor: 'pointer'
 }))
 
 const Layout1Topbar = () => {
@@ -59,8 +60,6 @@ const Layout1Topbar = () => {
     const [state, setState] = useState({
         right: false,
     })
-    const { palette } = useTheme()
-    const textPrimary = palette.text.primary
 
     const toggleDrawer = (anchor, open) => (event) => {
         if (
@@ -75,22 +74,20 @@ const Layout1Topbar = () => {
     return (
         <TopbarRoot>
             <TopbarContainer>
-                <Box display="flex">
-                    <Brand />
-                </Box>
-                <InfoBox onClick={toggleDrawer(anchor, true)} sx={{ p: 1 }}>
-                    <Icon
-                        fontSize="small"
-                        sx={{
-                            color: `rgba(${convertHexToRGB(
-                                textPrimary
-                            )}, 0.87)`,
-                            mr: 0.5,
-                        }}
-                    >
-                        info
-                    </Icon>
-                    <H4>About</H4>
+                <Link to="/">
+                    <Box display="flex">
+                        <Brand />
+                    </Box>
+                </Link>
+                <InfoBox sx={{ p: 1 }}>
+                    <Link to="/">
+                        <Options>Map</Options>
+                    </Link>
+                    <Link to="/Video">
+                        <Options>Gallary</Options>
+                    </Link>
+                    {/* <Options>Videos</Options> */}
+                    <Options onClick={toggleDrawer(anchor, true)}>About</Options>
                 </InfoBox>
                 <Drawer
                     anchor={anchor}
