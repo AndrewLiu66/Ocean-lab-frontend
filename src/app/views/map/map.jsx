@@ -1,12 +1,10 @@
 import React, { useRef, useEffect, useState, Fragment, useCallback} from "react";
-import Bookmarks from '@arcgis/core/widgets/Bookmarks';
-import Expand from '@arcgis/core/widgets/Expand';
 import MapView from "@arcgis/core/views/MapView";
 import WebMap from "@arcgis/core/WebMap";
 import esriConfig from "@arcgis/core/config";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Graphic from "@arcgis/core/Graphic";
-import GraphDialog from 'app/views/CRUD/GraphDialog'
+import GrapDialog from 'app/views/CRUD/GrapDialog'
 import { styled, Box } from '@mui/system'
 import { useDispatch, useSelector } from 'react-redux'
 import { GET_INIT_GRAPH } from 'app/redux/actions/GraphActions.js'
@@ -24,13 +22,16 @@ const HYDROPHONES = [
     { location: 'Southern Hydrate', latitude: 44.5691, longitude: -125.1479 },
     { location: 'Central Caldera', latitude: 45.9546, longitude: -130.0089 },
     { location: 'Eastern Caldera', latitude: 45.9396, longitude: -129.9738 },
+    { location: 'Oregon Slope', latitude: 44.529, longitude: -125.3893 },
+    { location: 'Oregon Offshore', latitude: 44.3695, longitude: -124.954 },
+    { location: 'Oregon Shelf', latitude: 44.6371, longitude: -124.306 },
 ]
 
 function Oceanmap() {
     const mapDiv = useRef(null);
     const { graphList = [] } = useSelector((state) => state.graph)
     const [shouldOpenEditorDialog, setShouldOpenEditorDialog] = useState(false)
-    const [currentLocation, setCurrentLocation] = useState('axial_base')
+    const [currentLocation, setCurrentLocation] = useState('')
     const dispatch = useDispatch()
 
     const handleDialogClose = () => {
@@ -60,7 +61,6 @@ function Oceanmap() {
 
         const graphicsLayer = new GraphicsLayer();
         webmap.add(graphicsLayer);
-
 
         // add Hydrophone locations
         HYDROPHONES.forEach(element => {
@@ -115,9 +115,8 @@ function Oceanmap() {
             // Execute the measureThis() function if the measure-this action is clicked
             if (event.action.id === "show_popup")
             {
-                console.log(event.action.location)
-                handleOpenDialog(true, "axial_base")
-                setCurrentLocation("axial_base")
+                setCurrentLocation(event.action.location)
+                handleOpenDialog(true, event.action.location)
             }
         });
     }
@@ -128,7 +127,7 @@ function Oceanmap() {
         </StyledBox>
 
         {shouldOpenEditorDialog && (
-            <GraphDialog
+            <GrapDialog
                 currentLocation={currentLocation}
                 graphData={graphList}
                 handleClose={handleDialogClose}

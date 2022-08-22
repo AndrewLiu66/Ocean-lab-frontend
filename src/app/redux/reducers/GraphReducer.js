@@ -1,9 +1,10 @@
 import {
-    GET_INIT_GRAPH, GET_UPDATE_GRAPH
+    GET_INIT_GRAPH, GET_UPDATE_GRAPH, GET_CTP_INIT_GRAPH
 } from '../actions/GraphActions'
 
 const initialState = {
-    initGraph: {},
+    initSpecGraph: {},
+    initCtpGraph: {},
     csv: {}
 }
 
@@ -14,13 +15,19 @@ const GraphReducer = function (state = initialState, action) {
             return {
                 ...state,
                 // graphList: [...action.payload],
-                initGraph: { ...action.payload }
+                initSpecGraph: { ...action.payload }
+            }
+        }
+        case GET_CTP_INIT_GRAPH: {
+            return {
+                ...state,
+                initCtpGraph: { ...action.payload }
             }
         }
         case GET_UPDATE_GRAPH: {
             return {
                 ...state,
-                initGraph: { ...action.payload }
+                initSpecGraph: { ...action.payload }
             }
         }
         default: {
